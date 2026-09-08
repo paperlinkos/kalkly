@@ -115,81 +115,74 @@ class LowerControlDeck extends StatelessWidget {
 
   Widget _buildArcadeDeck() {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8.0, top: 4.0),
+      padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.end, // Positioned lower on control deck
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          const Spacer(flex: 1),
+          const SizedBox(height: 4),
 
-          // Main Handheld Controller Row (D-Pad + A/B Action Buttons closer together & lower)
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                // Ergonomic Raised Cross D-Pad
-                SizedBox(
-                  width: 130,
-                  height: 130,
-                  child: Stack(
+          // Main Controls Row (D-Pad Left, A/B Action Buttons Right)
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              // Raised Cross D-Pad
+              SizedBox(
+                width: 136,
+                height: 136,
+                child: Stack(
+                  children: [
+                    Positioned(
+                      top: 0,
+                      left: 44,
+                      child: _buildDpadBtn('UP', '▲', 48, 48),
+                    ),
+                    Positioned(
+                      bottom: 0,
+                      left: 44,
+                      child: _buildDpadBtn('DOWN', '▼', 48, 48),
+                    ),
+                    Positioned(
+                      top: 44,
+                      left: 0,
+                      child: _buildDpadBtn('LEFT', '◄', 48, 48),
+                    ),
+                    Positioned(
+                      top: 44,
+                      right: 0,
+                      child: _buildDpadBtn('RIGHT', '►', 48, 48),
+                    ),
+                    Positioned(
+                      top: 44,
+                      left: 44,
+                      child: Container(width: 48, height: 48, color: Colors.black),
+                    ),
+                  ],
+                ),
+              ),
+
+              // Angled Circular Action Buttons A & B
+              Transform.rotate(
+                angle: -0.22,
+                child: Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.04),
+                    borderRadius: BorderRadius.circular(40),
+                    border: Border.all(color: Colors.black12, style: BorderStyle.solid),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      Positioned(
-                        top: 0,
-                        left: 42,
-                        child: _buildDpadBtn('UP', '▲', 46, 46),
-                      ),
-                      Positioned(
-                        bottom: 0,
-                        left: 42,
-                        child: _buildDpadBtn('DOWN', '▼', 46, 46),
-                      ),
-                      Positioned(
-                        top: 42,
-                        left: 0,
-                        child: _buildDpadBtn('LEFT', '◄', 46, 46),
-                      ),
-                      Positioned(
-                        top: 42,
-                        right: 0,
-                        child: _buildDpadBtn('RIGHT', '►', 46, 46),
-                      ),
-                      Positioned(
-                        top: 42,
-                        left: 42,
-                        child: Container(width: 46, height: 46, color: Colors.black),
-                      ),
+                      _buildActionBtn('B', Colors.black, Colors.white),
+                      const SizedBox(width: 12),
+                      _buildActionBtn('A', Colors.redAccent, Colors.white),
                     ],
                   ),
                 ),
-
-                const SizedBox(width: 12),
-
-                // Angled Circular Action Buttons A & B (Brought lower & closer)
-                Transform.rotate(
-                  angle: -0.22,
-                  child: Container(
-                    padding: const EdgeInsets.all(6),
-                    decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.04),
-                      borderRadius: BorderRadius.circular(40),
-                      border: Border.all(color: Colors.black12, style: BorderStyle.solid),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        _buildActionBtn('B', Colors.black, Colors.white),
-                        const SizedBox(width: 10),
-                        _buildActionBtn('A', Colors.redAccent, Colors.white),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
-
-          const SizedBox(height: 16),
 
           // Bottom Pill Switches (SELECT & START)
           Row(
@@ -200,7 +193,7 @@ class LowerControlDeck extends StatelessWidget {
               _buildPillBtn('START'),
             ],
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 8),
         ],
       ),
     );
@@ -230,8 +223,8 @@ class LowerControlDeck extends StatelessWidget {
       behavior: HitTestBehavior.opaque,
       onTapDown: (_) => onActionPress(action),
       child: Container(
-        width: 52,
-        height: 52,
+        width: 54,
+        height: 54,
         alignment: Alignment.center,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
@@ -256,8 +249,8 @@ class LowerControlDeck extends StatelessWidget {
           child: Transform.rotate(
             angle: -0.4,
             child: Container(
-              width: 50,
-              height: 13,
+              width: 52,
+              height: 14,
               decoration: BoxDecoration(
                 color: Colors.grey,
                 borderRadius: BorderRadius.circular(8),
