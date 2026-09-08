@@ -114,83 +114,101 @@ class LowerControlDeck extends StatelessWidget {
   }
 
   Widget _buildArcadeDeck() {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            // Cross D-Pad
-            SizedBox(
-              width: 140,
-              height: 140,
-              child: Stack(
-                children: [
-                  Positioned(
-                    top: 0,
-                    left: 45,
-                    child: _buildDpadBtn('UP', '▲', 50, 50),
-                  ),
-                  Positioned(
-                    bottom: 0,
-                    left: 45,
-                    child: _buildDpadBtn('DOWN', '▼', 50, 50),
-                  ),
-                  Positioned(
-                    top: 45,
-                    left: 0,
-                    child: _buildDpadBtn('LEFT', '◄', 50, 50),
-                  ),
-                  Positioned(
-                    top: 45,
-                    right: 0,
-                    child: _buildDpadBtn('RIGHT', '►', 50, 50),
-                  ),
-                  Positioned(
-                    top: 45,
-                    left: 45,
-                    child: Container(width: 50, height: 50, color: Colors.black),
-                  ),
-                ],
-              ),
-            ),
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8.0, top: 4.0),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.end, // Positioned lower on control deck
+        children: [
+          const Spacer(flex: 1),
 
-            // Action Buttons A/B
-            Transform.rotate(
-              angle: -0.25,
-              child: Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(40),
-                  border: Border.all(color: Colors.black26, style: BorderStyle.solid),
+          // Main Handheld Controller Row (D-Pad + A/B Action Buttons closer together & lower)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                // Ergonomic Raised Cross D-Pad
+                SizedBox(
+                  width: 130,
+                  height: 130,
+                  child: Stack(
+                    children: [
+                      Positioned(
+                        top: 0,
+                        left: 42,
+                        child: _buildDpadBtn('UP', '▲', 46, 46),
+                      ),
+                      Positioned(
+                        bottom: 0,
+                        left: 42,
+                        child: _buildDpadBtn('DOWN', '▼', 46, 46),
+                      ),
+                      Positioned(
+                        top: 42,
+                        left: 0,
+                        child: _buildDpadBtn('LEFT', '◄', 46, 46),
+                      ),
+                      Positioned(
+                        top: 42,
+                        right: 0,
+                        child: _buildDpadBtn('RIGHT', '►', 46, 46),
+                      ),
+                      Positioned(
+                        top: 42,
+                        left: 42,
+                        child: Container(width: 46, height: 46, color: Colors.black),
+                      ),
+                    ],
+                  ),
                 ),
-                child: Row(
-                  children: [
-                    _buildActionBtn('B', Colors.black, Colors.white),
-                    const SizedBox(width: 12),
-                    _buildActionBtn('A', Colors.redAccent, Colors.white),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
 
-        // Select / Start
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            _buildPillBtn('SELECT'),
-            const SizedBox(width: 24),
-            _buildPillBtn('START'),
-          ],
-        ),
-      ],
+                const SizedBox(width: 12),
+
+                // Angled Circular Action Buttons A & B (Brought lower & closer)
+                Transform.rotate(
+                  angle: -0.22,
+                  child: Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withOpacity(0.04),
+                      borderRadius: BorderRadius.circular(40),
+                      border: Border.all(color: Colors.black12, style: BorderStyle.solid),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        _buildActionBtn('B', Colors.black, Colors.white),
+                        const SizedBox(width: 10),
+                        _buildActionBtn('A', Colors.redAccent, Colors.white),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 16),
+
+          // Bottom Pill Switches (SELECT & START)
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              _buildPillBtn('SELECT'),
+              const SizedBox(width: 28),
+              _buildPillBtn('START'),
+            ],
+          ),
+          const SizedBox(height: 4),
+        ],
+      ),
     );
   }
 
   Widget _buildDpadBtn(String dir, String label, double w, double h) {
     return GestureDetector(
+      behavior: HitTestBehavior.opaque,
       onTapDown: (_) => onDpadPress(dir),
       child: Container(
         width: w,
@@ -200,18 +218,20 @@ class LowerControlDeck extends StatelessWidget {
           color: Colors.black,
           borderRadius: BorderRadius.circular(6),
           border: Border.all(color: Colors.black, width: 2),
+          boxShadow: const [BoxShadow(color: Colors.black26, offset: Offset(0, 3))],
         ),
-        child: Text(label, style: const TextStyle(color: Colors.white, fontSize: 16)),
+        child: Text(label, style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
       ),
     );
   }
 
   Widget _buildActionBtn(String action, Color bg, Color text) {
     return GestureDetector(
+      behavior: HitTestBehavior.opaque,
       onTapDown: (_) => onActionPress(action),
       child: Container(
-        width: 56,
-        height: 56,
+        width: 52,
+        height: 52,
         alignment: Alignment.center,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
@@ -221,7 +241,7 @@ class LowerControlDeck extends StatelessWidget {
         ),
         child: Text(
           action,
-          style: GoogleFonts.pressStart2p(fontSize: 14, color: text),
+          style: GoogleFonts.pressStart2p(fontSize: 13, color: text),
         ),
       ),
     );
@@ -231,12 +251,13 @@ class LowerControlDeck extends StatelessWidget {
     return Column(
       children: [
         GestureDetector(
+          behavior: HitTestBehavior.opaque,
           onTapDown: (_) => onActionPress(action),
           child: Transform.rotate(
             angle: -0.4,
             child: Container(
-              width: 54,
-              height: 14,
+              width: 50,
+              height: 13,
               decoration: BoxDecoration(
                 color: Colors.grey,
                 borderRadius: BorderRadius.circular(8),
@@ -245,7 +266,7 @@ class LowerControlDeck extends StatelessWidget {
             ),
           ),
         ),
-        const SizedBox(height: 6),
+        const SizedBox(height: 4),
         Text(
           action,
           style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w900, color: Colors.grey),

@@ -10,9 +10,17 @@ const int targetSum = 10;
 
 class PixelMathMatch extends StatefulWidget {
   final String? dpadInput;
+  final int dpadCounter;
   final String? actionInput;
+  final int actionCounter;
 
-  const PixelMathMatch({super.key, this.dpadInput, this.actionInput});
+  const PixelMathMatch({
+    super.key,
+    this.dpadInput,
+    this.dpadCounter = 0,
+    this.actionInput,
+    this.actionCounter = 0,
+  });
 
   @override
   State<PixelMathMatch> createState() => _PixelMathMatchState();
@@ -29,16 +37,19 @@ class _PixelMathMatchState extends State<PixelMathMatch> {
   @override
   void didUpdateWidget(PixelMathMatch oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (!gameStarted || gameOver) {
-      if (widget.actionInput == 'START' || widget.actionInput == 'A') {
-        startGame();
+
+    if (widget.actionCounter != oldWidget.actionCounter && widget.actionInput != null) {
+      if (!gameStarted || gameOver) {
+        if (widget.actionInput == 'START' || widget.actionInput == 'A') {
+          startGame();
+        }
+        return;
       }
-      return;
     }
 
-    if (activeBlock == null) return;
+    if (!gameStarted || gameOver || activeBlock == null) return;
 
-    if (widget.dpadInput != null && widget.dpadInput != oldWidget.dpadInput) {
+    if (widget.dpadCounter != oldWidget.dpadCounter && widget.dpadInput != null) {
       if (widget.dpadInput == 'LEFT' && activeBlock!['x']! > 0) {
         if (grid[activeBlock!['y']!][activeBlock!['x']! - 1] == null) {
           setState(() => activeBlock!['x'] = activeBlock!['x']! - 1);
@@ -51,10 +62,11 @@ class _PixelMathMatchState extends State<PixelMathMatch> {
         }
       } else if (widget.dpadInput == 'DOWN') {
         dropActiveBlock();
+        soundService.playArcadeMove();
       }
     }
 
-    if (widget.actionInput != null && widget.actionInput != oldWidget.actionInput) {
+    if (widget.actionCounter != oldWidget.actionCounter && widget.actionInput != null) {
       if (widget.actionInput == 'A' || widget.actionInput == 'UP') {
         setState(() {
           activeBlock!['val'] = (activeBlock!['val']! % 9) + 1;
@@ -65,6 +77,7 @@ class _PixelMathMatchState extends State<PixelMathMatch> {
   }
 
   void startGame() {
+    gameTimer?.cancel();
     setState(() {
       grid = List.generate(rows, (_) => List.generate(cols, (_) => null));
       score = 0;
@@ -104,7 +117,6 @@ class _PixelMathMatchState extends State<PixelMathMatch> {
   void lockBlock(int x, int y, int val) {
     grid[y][x] = val;
 
-    // Check matches
     int cleared = 0;
     List<Point<int>> toClear = [];
 
@@ -158,7 +170,7 @@ class _PixelMathMatchState extends State<PixelMathMatch> {
 
   void startTimer() {
     gameTimer?.cancel();
-    gameTimer = Timer.periodic(const Duration(milliseconds: 600), (t) {
+    gameTimer = Timer.periodic(const Duration(milliseconds: 550), (t) {
       if (!mounted || !gameStarted || gameOver) {
         t.cancel();
         return;

@@ -6,9 +6,17 @@ import '../services/sound_service.dart';
 
 class PixelRacer extends StatefulWidget {
   final String? dpadInput;
+  final int dpadCounter;
   final String? actionInput;
+  final int actionCounter;
 
-  const PixelRacer({super.key, this.dpadInput, this.actionInput});
+  const PixelRacer({
+    super.key,
+    this.dpadInput,
+    this.dpadCounter = 0,
+    this.actionInput,
+    this.actionCounter = 0,
+  });
 
   @override
   State<PixelRacer> createState() => _PixelRacerState();
@@ -27,7 +35,8 @@ class _PixelRacerState extends State<PixelRacer> {
   @override
   void didUpdateWidget(PixelRacer oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.dpadInput != null && widget.dpadInput != oldWidget.dpadInput) {
+
+    if (widget.dpadCounter != oldWidget.dpadCounter && widget.dpadInput != null) {
       if (widget.dpadInput == 'LEFT' && playerLane > 0) {
         setState(() => playerLane--);
         soundService.playArcadeMove();
@@ -37,7 +46,7 @@ class _PixelRacerState extends State<PixelRacer> {
       }
     }
 
-    if (widget.actionInput != null && widget.actionInput != oldWidget.actionInput) {
+    if (widget.actionCounter != oldWidget.actionCounter && widget.actionInput != null) {
       if (widget.actionInput == 'START' || widget.actionInput == 'A') {
         if (!gameStarted || gameOver) {
           resetGame();
@@ -47,6 +56,7 @@ class _PixelRacerState extends State<PixelRacer> {
   }
 
   void resetGame() {
+    gameTimer?.cancel();
     setState(() {
       playerLane = 1;
       obstacles.clear();
@@ -60,7 +70,7 @@ class _PixelRacerState extends State<PixelRacer> {
 
   void startGameLoop() {
     gameTimer?.cancel();
-    gameTimer = Timer.periodic(const Duration(milliseconds: 140), (timer) {
+    gameTimer = Timer.periodic(const Duration(milliseconds: 130), (timer) {
       if (!mounted || !gameStarted || gameOver) {
         timer.cancel();
         return;
@@ -75,7 +85,7 @@ class _PixelRacerState extends State<PixelRacer> {
           }
         }
 
-        // Check collision at y = 14
+        // Check collision at y = 14 or 15
         bool crashed = nextObs.any((o) => o['lane'] == playerLane && (o['y'] == 14 || o['y'] == 15));
         if (crashed) {
           gameOver = true;
@@ -87,7 +97,7 @@ class _PixelRacerState extends State<PixelRacer> {
 
         // Spawn new obstacle
         if (nextObs.isEmpty || nextObs.last['y']! > 4) {
-          if (Random().nextDouble() < 0.6) {
+          if (Random().nextDouble() < 0.65) {
             nextObs.add({'id': nextId++, 'lane': Random().nextInt(3), 'y': 0});
           }
         }

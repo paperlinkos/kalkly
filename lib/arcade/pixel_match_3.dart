@@ -8,9 +8,17 @@ const List<String> glyphs = ['■', '●', '▲', '◆', '✖'];
 
 class PixelMatch3 extends StatefulWidget {
   final String? dpadInput;
+  final int dpadCounter;
   final String? actionInput;
+  final int actionCounter;
 
-  const PixelMatch3({super.key, this.dpadInput, this.actionInput});
+  const PixelMatch3({
+    super.key,
+    this.dpadInput,
+    this.dpadCounter = 0,
+    this.actionInput,
+    this.actionCounter = 0,
+  });
 
   @override
   State<PixelMatch3> createState() => _PixelMatch3State();
@@ -40,14 +48,19 @@ class _PixelMatch3State extends State<PixelMatch3> {
   @override
   void didUpdateWidget(PixelMatch3 oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (gameOver) {
-      if (widget.actionInput == 'START' || widget.actionInput == 'A') {
-        resetGame();
+
+    if (widget.actionCounter != oldWidget.actionCounter && widget.actionInput != null) {
+      if (gameOver) {
+        if (widget.actionInput == 'START' || widget.actionInput == 'A') {
+          resetGame();
+        }
+        return;
       }
-      return;
     }
 
-    if (widget.dpadInput != null && widget.dpadInput != oldWidget.dpadInput) {
+    if (gameOver) return;
+
+    if (widget.dpadCounter != oldWidget.dpadCounter && widget.dpadInput != null) {
       soundService.playArcadeMove();
       int r = cursor.x;
       int c = cursor.y;
@@ -70,7 +83,7 @@ class _PixelMatch3State extends State<PixelMatch3> {
       setState(() => cursor = nextCursor);
     }
 
-    if (widget.actionInput != null && widget.actionInput != oldWidget.actionInput) {
+    if (widget.actionCounter != oldWidget.actionCounter && widget.actionInput != null) {
       if (widget.actionInput == 'A') {
         if (selectedTile == null) {
           setState(() => selectedTile = cursor);

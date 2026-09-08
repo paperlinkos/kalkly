@@ -9,9 +9,17 @@ const int arenaCols = 10;
 
 class TurnStrategy extends StatefulWidget {
   final String? dpadInput;
+  final int dpadCounter;
   final String? actionInput;
+  final int actionCounter;
 
-  const TurnStrategy({super.key, this.dpadInput, this.actionInput});
+  const TurnStrategy({
+    super.key,
+    this.dpadInput,
+    this.dpadCounter = 0,
+    this.actionInput,
+    this.actionCounter = 0,
+  });
 
   @override
   State<TurnStrategy> createState() => _TurnStrategyState();
@@ -41,16 +49,21 @@ class _TurnStrategyState extends State<TurnStrategy> {
   @override
   void didUpdateWidget(TurnStrategy oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (gameOver || victory) {
-      if (widget.actionInput == 'START' || widget.actionInput == 'A') {
-        resetBattle();
+
+    if (widget.actionCounter != oldWidget.actionCounter && widget.actionInput != null) {
+      if (gameOver || victory) {
+        if (widget.actionInput == 'START' || widget.actionInput == 'A') {
+          resetBattle();
+        }
+        return;
       }
-      return;
     }
+
+    if (gameOver || victory) return;
 
     bool actionTaken = false;
 
-    if (widget.dpadInput != null && widget.dpadInput != oldWidget.dpadInput) {
+    if (widget.dpadCounter != oldWidget.dpadCounter && widget.dpadInput != null) {
       String dir = widget.dpadInput!;
       player['dir'] = dir;
 
@@ -71,7 +84,7 @@ class _TurnStrategyState extends State<TurnStrategy> {
         logMsg = 'FACING $dir';
       }
       actionTaken = true;
-    } else if (widget.actionInput != null && widget.actionInput != oldWidget.actionInput) {
+    } else if (widget.actionCounter != oldWidget.actionCounter && widget.actionInput != null) {
       if (widget.actionInput == 'A') {
         fireCannon();
         soundService.playArcadeAction();

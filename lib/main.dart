@@ -33,22 +33,24 @@ class _DynamoAppState extends State<DynamoApp> {
   String fromCurrency = 'USD';
   String toCurrency = 'EUR';
 
-  // Arcade State
+  // Arcade State with Input Counter Triggers for zero input lag
   int arcadeGame = 0;
   String? dpadInput;
+  int dpadCounter = 0;
   String? actionInput;
+  int actionCounter = 0;
 
   void triggerDpad(String dir) {
-    setState(() => dpadInput = dir);
-    Future.delayed(const Duration(milliseconds: 60), () {
-      if (mounted) setState(() => dpadInput = null);
+    setState(() {
+      dpadInput = dir;
+      dpadCounter++;
     });
   }
 
   void triggerAction(String act) {
-    setState(() => actionInput = act);
-    Future.delayed(const Duration(milliseconds: 60), () {
-      if (mounted) setState(() => actionInput = null);
+    setState(() {
+      actionInput = act;
+      actionCounter++;
     });
   }
 
@@ -115,7 +117,6 @@ class _DynamoAppState extends State<DynamoApp> {
   void updateRunningTotal(String exp) {
     double? res = evaluateExpression(exp);
     if (res != null) {
-      // Format cleanly (remove trailing .0 if integer)
       String str = res.toString();
       if (str.endsWith('.0')) {
         str = str.substring(0, str.length - 2);
@@ -177,7 +178,6 @@ class _DynamoAppState extends State<DynamoApp> {
         } else {
           String trimmed = calcExpression.trimRight();
           if (['+', '-', '×', '÷'].contains(trimmed.characters.last)) {
-            // Replace trailing operator
             calcExpression = '${trimmed.substring(0, trimmed.length - 1)} $key ';
           } else {
             calcExpression = '$calcExpression $key ';
@@ -277,7 +277,9 @@ class _DynamoAppState extends State<DynamoApp> {
               arcadeGame: arcadeGame,
               onSelectArcadeGame: (idx) => setState(() => arcadeGame = idx),
               dpadInput: dpadInput,
+              dpadCounter: dpadCounter,
               actionInput: actionInput,
+              actionCounter: actionCounter,
             ),
             const SizedBox(height: 12),
             CartridgeBar(

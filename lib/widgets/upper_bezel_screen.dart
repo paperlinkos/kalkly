@@ -23,7 +23,9 @@ class UpperBezelScreen extends StatelessWidget {
   final int arcadeGame;
   final ValueChanged<int> onSelectArcadeGame;
   final String? dpadInput;
+  final int dpadCounter;
   final String? actionInput;
+  final int actionCounter;
 
   const UpperBezelScreen({
     super.key,
@@ -40,10 +42,11 @@ class UpperBezelScreen extends StatelessWidget {
     required this.arcadeGame,
     required this.onSelectArcadeGame,
     this.dpadInput,
+    this.dpadCounter = 0,
     this.actionInput,
+    this.actionCounter = 0,
   });
 
-  // Helper to format numbers with thousands separators (e.g. 200,000.98)
   String formatAmountWithCommas(String input) {
     if (input.isEmpty) return '0';
     List<String> parts = input.split('.');
@@ -77,17 +80,12 @@ class UpperBezelScreen extends StatelessWidget {
       clipBehavior: Clip.antiAlias,
       child: Stack(
         children: [
-          // Dot Matrix Scanlines effect
           Positioned.fill(
             child: Opacity(
               opacity: 0.05,
-              child: Container(
-                color: Colors.black,
-              ),
+              child: Container(color: Colors.black),
             ),
           ),
-
-          // Content
           if (mode == 'CALC') _buildCalcScreen(),
           if (mode == 'CURRENCY') _buildCurrencyScreen(context),
           if (mode == 'ARCADE') _buildArcadeScreen(),
@@ -102,7 +100,6 @@ class UpperBezelScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          // 1. Scrollable History Log
           Expanded(
             child: ListView(
               reverse: true,
@@ -115,10 +112,7 @@ class UpperBezelScreen extends StatelessWidget {
               }).toList(),
             ),
           ),
-
           const SizedBox(height: 6),
-
-          // 2. Active Formula Expression (Horizontal Side-Scrollable)
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             reverse: true,
@@ -131,10 +125,7 @@ class UpperBezelScreen extends StatelessWidget {
               ),
             ),
           ),
-
           const SizedBox(height: 4),
-
-          // 3. Live Dynamic Running Total (Oversized LCD Readout)
           FittedBox(
             alignment: Alignment.centerRight,
             fit: BoxFit.scaleDown,
@@ -163,7 +154,6 @@ class UpperBezelScreen extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          // Source Currency Card (With Thousands Separators: e.g. 200,000.98)
           InkWell(
             onTap: () {
               showDialog(
@@ -209,8 +199,6 @@ class UpperBezelScreen extends StatelessWidget {
               ),
             ),
           ),
-
-          // Swap Bar
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -224,8 +212,6 @@ class UpperBezelScreen extends StatelessWidget {
               ),
             ],
           ),
-
-          // Target Currency Card (With Thousands Separators: e.g. 765,058.00)
           InkWell(
             onTap: () {
               showDialog(
@@ -271,8 +257,6 @@ class UpperBezelScreen extends StatelessWidget {
               ),
             ),
           ),
-
-          // Footer
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -296,7 +280,6 @@ class UpperBezelScreen extends StatelessWidget {
 
     return Column(
       children: [
-        // Tab Chips
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: Row(
@@ -324,16 +307,14 @@ class UpperBezelScreen extends StatelessWidget {
             }),
           ),
         ),
-
-        // Game Container
         Expanded(
           child: IndexedStack(
             index: arcadeGame,
             children: [
-              PixelRacer(dpadInput: dpadInput, actionInput: actionInput),
-              PixelMathMatch(dpadInput: dpadInput, actionInput: actionInput),
-              PixelMatch3(dpadInput: dpadInput, actionInput: actionInput),
-              TurnStrategy(dpadInput: dpadInput, actionInput: actionInput),
+              PixelRacer(dpadInput: dpadInput, dpadCounter: dpadCounter, actionInput: actionInput, actionCounter: actionCounter),
+              PixelMathMatch(dpadInput: dpadInput, dpadCounter: dpadCounter, actionInput: actionInput, actionCounter: actionCounter),
+              PixelMatch3(dpadInput: dpadInput, dpadCounter: dpadCounter, actionInput: actionInput, actionCounter: actionCounter),
+              TurnStrategy(dpadInput: dpadInput, dpadCounter: dpadCounter, actionInput: actionInput, actionCounter: actionCounter),
             ],
           ),
         ),
