@@ -1,7 +1,0 @@
-<?xml version='1.0' encoding='utf-8'?>
-<resources>
-    <string name="app_name">DYNAMO SYSTEM</string>
-    <string name="title_activity_main">DYNAMO SYSTEM</string>
-    <string name="package_name">com.dynamo.kalkly</string>
-    <string name="custom_url_scheme">com.dynamo.kalkly</string>
-</resources>
