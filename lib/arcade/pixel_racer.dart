@@ -136,31 +136,40 @@ class _PixelRacerState extends State<PixelRacer> {
         Expanded(
           child: Stack(
             children: [
-              GridView.builder(
-                padding: const EdgeInsets.all(4),
-                physics: const NeverScrollableScrollPhysics(),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 3,
-                  mainAxisSpacing: 2,
-                  crossAxisSpacing: 2,
-                ),
-                itemCount: 48,
-                itemBuilder: (context, index) {
-                  int lane = index % 3;
-                  int y = index ~/ 3;
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  final double itemW = (constraints.maxWidth - 8) / 3;
+                  final double itemH = (constraints.maxHeight - 34) / 16;
+                  final double ratio = (itemW > 0 && itemH > 0) ? itemW / itemH : 1.0;
 
-                  bool isPlayer = (y == 14 && lane == playerLane);
-                  bool isObstacle = obstacles.any((o) => o['lane'] == lane && o['y'] == y);
-
-                  return Container(
-                    decoration: BoxDecoration(
-                      color: isPlayer
-                          ? Colors.redAccent
-                          : isObstacle
-                              ? const Color(0xFF0F1A10)
-                              : Colors.black.withOpacity(0.03),
-                      borderRadius: BorderRadius.circular(3),
+                  return GridView.builder(
+                    padding: const EdgeInsets.all(4),
+                    physics: const NeverScrollableScrollPhysics(),
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 3,
+                      mainAxisSpacing: 2,
+                      crossAxisSpacing: 2,
+                      childAspectRatio: ratio,
                     ),
+                    itemCount: 48,
+                    itemBuilder: (context, index) {
+                      int lane = index % 3;
+                      int y = index ~/ 3;
+
+                      bool isPlayer = (y == 14 && lane == playerLane);
+                      bool isObstacle = obstacles.any((o) => o['lane'] == lane && o['y'] == y);
+
+                      return Container(
+                        decoration: BoxDecoration(
+                          color: isPlayer
+                              ? Colors.redAccent
+                              : isObstacle
+                                  ? const Color(0xFF0F1A10)
+                                  : Colors.black.withOpacity(0.03),
+                          borderRadius: BorderRadius.circular(3),
+                        ),
+                      );
+                    },
                   );
                 },
               ),

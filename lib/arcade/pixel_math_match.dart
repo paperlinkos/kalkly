@@ -204,42 +204,51 @@ class _PixelMathMatchState extends State<PixelMathMatch> {
         Expanded(
           child: Stack(
             children: [
-              GridView.builder(
-                padding: const EdgeInsets.all(4),
-                physics: const NeverScrollableScrollPhysics(),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: cols,
-                  mainAxisSpacing: 2,
-                  crossAxisSpacing: 2,
-                ),
-                itemCount: rows * cols,
-                itemBuilder: (context, index) {
-                  int r = index ~/ cols;
-                  int c = index % cols;
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  final double itemW = (constraints.maxWidth - 18) / cols;
+                  final double itemH = (constraints.maxHeight - 26) / rows;
+                  final double ratio = (itemW > 0 && itemH > 0) ? itemW / itemH : 1.0;
 
-                  bool isActive = (activeBlock != null && activeBlock!['x'] == c && activeBlock!['y'] == r);
-                  int? val = isActive ? activeBlock!['val'] : grid[r][c];
+                  return GridView.builder(
+                    padding: const EdgeInsets.all(4),
+                    physics: const NeverScrollableScrollPhysics(),
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: cols,
+                      mainAxisSpacing: 2,
+                      crossAxisSpacing: 2,
+                      childAspectRatio: ratio,
+                    ),
+                    itemCount: rows * cols,
+                    itemBuilder: (context, index) {
+                      int r = index ~/ cols;
+                      int c = index % cols;
 
-                  return Container(
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      color: isActive
-                          ? const Color(0xFF0F1A10)
-                          : val != null
-                              ? Colors.black.withOpacity(0.15)
-                              : Colors.black.withOpacity(0.03),
-                      borderRadius: BorderRadius.circular(4),
-                      border: Border.all(
-                        color: val != null ? const Color(0xFF0F1A10) : Colors.black12,
-                      ),
-                    ),
-                    child: Text(
-                      val != null ? '$val' : '',
-                      style: GoogleFonts.pressStart2p(
-                        fontSize: 10,
-                        color: isActive ? const Color(0xFFDCE3D5) : const Color(0xFF0F1A10),
-                      ),
-                    ),
+                      bool isActive = (activeBlock != null && activeBlock!['x'] == c && activeBlock!['y'] == r);
+                      int? val = isActive ? activeBlock!['val'] : grid[r][c];
+
+                      return Container(
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: isActive
+                              ? const Color(0xFF0F1A10)
+                              : val != null
+                                  ? Colors.black.withOpacity(0.15)
+                                  : Colors.black.withOpacity(0.03),
+                          borderRadius: BorderRadius.circular(4),
+                          border: Border.all(
+                            color: val != null ? const Color(0xFF0F1A10) : Colors.black12,
+                          ),
+                        ),
+                        child: Text(
+                          val != null ? '$val' : '',
+                          style: GoogleFonts.pressStart2p(
+                            fontSize: 10,
+                            color: isActive ? const Color(0xFFDCE3D5) : const Color(0xFF0F1A10),
+                          ),
+                        ),
+                      );
+                    },
                   );
                 },
               ),

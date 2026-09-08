@@ -68,7 +68,8 @@ class UpperBezelScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 280,
+      width: double.infinity,
+      height: double.infinity,
       decoration: BoxDecoration(
         color: const Color(0xFFDCE3D5),
         borderRadius: BorderRadius.circular(16),

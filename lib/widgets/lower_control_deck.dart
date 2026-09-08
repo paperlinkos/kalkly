@@ -18,11 +18,9 @@ class LowerControlDeck extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 250),
-        child: mode == 'ARCADE' ? _buildArcadeDeck() : _buildKeypadGrid(),
-      ),
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 250),
+      child: mode == 'ARCADE' ? _buildArcadeDeck() : _buildKeypadGrid(),
     );
   }
 
@@ -43,20 +41,35 @@ class LowerControlDeck extends StatelessWidget {
             ['DEL', '0', '.', 'PAIR_INR'],
           ];
 
-    return GridView.builder(
-      physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 4,
-        mainAxisSpacing: 8,
-        crossAxisSpacing: 8,
-        childAspectRatio: 1.15,
-      ),
-      itemCount: 20,
-      itemBuilder: (context, index) {
-        int r = index ~/ 4;
-        int c = index % 4;
-        String key = keys[r][c];
-        return _buildChicletBtn(key);
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final double availableWidth = constraints.maxWidth;
+        final double availableHeight = constraints.maxHeight;
+
+        // 5 rows, 4 columns with 8px spacing
+        final double itemWidth = (availableWidth - (3 * 8)) / 4;
+        final double itemHeight = (availableHeight - (4 * 8)) / 5;
+
+        final double aspectRatio = (itemHeight > 0 && itemWidth > 0)
+            ? (itemWidth / itemHeight)
+            : 1.15;
+
+        return GridView.builder(
+          physics: const NeverScrollableScrollPhysics(),
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 4,
+            mainAxisSpacing: 8,
+            crossAxisSpacing: 8,
+            childAspectRatio: aspectRatio,
+          ),
+          itemCount: 20,
+          itemBuilder: (context, index) {
+            int r = index ~/ 4;
+            int c = index % 4;
+            String key = keys[r][c];
+            return _buildChicletBtn(key);
+          },
+        );
       },
     );
   }
@@ -115,86 +128,93 @@ class LowerControlDeck extends StatelessWidget {
 
   Widget _buildArcadeDeck() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          const SizedBox(height: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
+      child: FittedBox(
+        fit: BoxFit.scaleDown,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const SizedBox(height: 4),
 
-          // Main Controls Row (D-Pad Left, A/B Action Buttons Right)
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              // Raised Cross D-Pad
-              SizedBox(
-                width: 136,
-                height: 136,
-                child: Stack(
-                  children: [
-                    Positioned(
-                      top: 0,
-                      left: 44,
-                      child: _buildDpadBtn('UP', '▲', 48, 48),
-                    ),
-                    Positioned(
-                      bottom: 0,
-                      left: 44,
-                      child: _buildDpadBtn('DOWN', '▼', 48, 48),
-                    ),
-                    Positioned(
-                      top: 44,
-                      left: 0,
-                      child: _buildDpadBtn('LEFT', '◄', 48, 48),
-                    ),
-                    Positioned(
-                      top: 44,
-                      right: 0,
-                      child: _buildDpadBtn('RIGHT', '►', 48, 48),
-                    ),
-                    Positioned(
-                      top: 44,
-                      left: 44,
-                      child: Container(width: 48, height: 48, color: Colors.black),
-                    ),
-                  ],
-                ),
-              ),
-
-              // Angled Circular Action Buttons A & B
-              Transform.rotate(
-                angle: -0.22,
-                child: Container(
-                  padding: const EdgeInsets.all(6),
-                  decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.04),
-                    borderRadius: BorderRadius.circular(40),
-                    border: Border.all(color: Colors.black12, style: BorderStyle.solid),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
+            // Main Controls Row (D-Pad Left, A/B Action Buttons Right)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                // Raised Cross D-Pad
+                SizedBox(
+                  width: 136,
+                  height: 136,
+                  child: Stack(
                     children: [
-                      _buildActionBtn('B', Colors.black, Colors.white),
-                      const SizedBox(width: 12),
-                      _buildActionBtn('A', Colors.redAccent, Colors.white),
+                      Positioned(
+                        top: 0,
+                        left: 44,
+                        child: _buildDpadBtn('UP', '▲', 48, 48),
+                      ),
+                      Positioned(
+                        bottom: 0,
+                        left: 44,
+                        child: _buildDpadBtn('DOWN', '▼', 48, 48),
+                      ),
+                      Positioned(
+                        top: 44,
+                        left: 0,
+                        child: _buildDpadBtn('LEFT', '◄', 48, 48),
+                      ),
+                      Positioned(
+                        top: 44,
+                        right: 0,
+                        child: _buildDpadBtn('RIGHT', '►', 48, 48),
+                      ),
+                      Positioned(
+                        top: 44,
+                        left: 44,
+                        child: Container(width: 48, height: 48, color: Colors.black),
+                      ),
                     ],
                   ),
                 ),
-              ),
-            ],
-          ),
 
-          // Bottom Pill Switches (SELECT & START)
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              _buildPillBtn('SELECT'),
-              const SizedBox(width: 28),
-              _buildPillBtn('START'),
-            ],
-          ),
-          const SizedBox(height: 8),
-        ],
+                const SizedBox(width: 24),
+
+                // Angled Circular Action Buttons A & B
+                Transform.rotate(
+                  angle: -0.22,
+                  child: Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withOpacity(0.04),
+                      borderRadius: BorderRadius.circular(40),
+                      border: Border.all(color: Colors.black12, style: BorderStyle.solid),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        _buildActionBtn('B', Colors.black, Colors.white),
+                        const SizedBox(width: 12),
+                        _buildActionBtn('A', Colors.redAccent, Colors.white),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 12),
+
+            // Bottom Pill Switches (SELECT & START)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                _buildPillBtn('SELECT'),
+                const SizedBox(width: 28),
+                _buildPillBtn('START'),
+              ],
+            ),
+            const SizedBox(height: 4),
+          ],
+        ),
       ),
     );
   }

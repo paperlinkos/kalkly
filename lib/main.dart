@@ -258,41 +258,47 @@ class _DynamoAppState extends State<DynamoApp> {
         },
         child: Column(
           children: [
-            UpperBezelScreen(
-              mode: mode,
-              calcDisplay: calcRunningTotal,
-              calcExpression: calcExpression,
-              calcHistory: calcHistory,
-              fromCurrency: fromCurrency,
-              toCurrency: toCurrency,
-              currencyAmount: currencyAmount,
-              onSetFromCurrency: (c) => setState(() => fromCurrency = c),
-              onSetToCurrency: (c) => setState(() => toCurrency = c),
-              onSwapCurrencies: () {
-                setState(() {
-                  String temp = fromCurrency;
-                  fromCurrency = toCurrency;
-                  toCurrency = temp;
-                });
-              },
-              arcadeGame: arcadeGame,
-              onSelectArcadeGame: (idx) => setState(() => arcadeGame = idx),
-              dpadInput: dpadInput,
-              dpadCounter: dpadCounter,
-              actionInput: actionInput,
-              actionCounter: actionCounter,
+            Expanded(
+              flex: 4,
+              child: UpperBezelScreen(
+                mode: mode,
+                calcDisplay: calcRunningTotal,
+                calcExpression: calcExpression,
+                calcHistory: calcHistory,
+                fromCurrency: fromCurrency,
+                toCurrency: toCurrency,
+                currencyAmount: currencyAmount,
+                onSetFromCurrency: (c) => setState(() => fromCurrency = c),
+                onSetToCurrency: (c) => setState(() => toCurrency = c),
+                onSwapCurrencies: () {
+                  setState(() {
+                    String temp = fromCurrency;
+                    fromCurrency = toCurrency;
+                    toCurrency = temp;
+                  });
+                },
+                arcadeGame: arcadeGame,
+                onSelectArcadeGame: (idx) => setState(() => arcadeGame = idx),
+                dpadInput: dpadInput,
+                dpadCounter: dpadCounter,
+                actionInput: actionInput,
+                actionCounter: actionCounter,
+              ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 8),
             CartridgeBar(
               mode: mode,
               onModeChange: (m) => setState(() => mode = m),
             ),
-            const SizedBox(height: 12),
-            LowerControlDeck(
-              mode: mode,
-              onKeyPress: handleKey,
-              onDpadPress: triggerDpad,
-              onActionPress: triggerAction,
+            const SizedBox(height: 8),
+            Expanded(
+              flex: 5,
+              child: LowerControlDeck(
+                mode: mode,
+                onKeyPress: handleKey,
+                onDpadPress: triggerDpad,
+                onActionPress: triggerAction,
+              ),
             ),
           ],
         ),
