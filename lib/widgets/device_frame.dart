@@ -23,27 +23,15 @@ class DeviceFrame extends StatelessWidget {
     final textMain = isDark ? const Color(0xFFEDEDED) : const Color(0xFF111111);
 
     return Scaffold(
-      backgroundColor: isDark ? const Color(0xFF0A0A0A) : const Color(0xFFE5E5E2),
-      body: Center(
+      backgroundColor: casingBg,
+      body: SafeArea(
         child: Container(
-          constraints: const BoxConstraints(maxWidth: 440, maxHeight: 900),
-          margin: const EdgeInsets.all(12),
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: casingBg,
-            borderRadius: BorderRadius.circular(32),
-            border: Border.all(color: isDark ? const Color(0xFF333333) : const Color(0xFF111111), width: 4),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(isDark ? 0.7 : 0.25),
-                blurRadius: 30,
-                offset: const Offset(0, 15),
-              )
-            ],
-          ),
+          width: double.infinity,
+          height: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           child: Column(
             children: [
-              // Top Bezel Bar
+              // Top Bezel Header
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -62,40 +50,40 @@ class DeviceFrame extends StatelessWidget {
                     }),
                   ),
 
-                  // Brand
+                  // Brand Stamp
                   Text(
                     'DYNAMO SYSTEM',
                     style: TextStyle(
                       fontWeight: FontWeight.w900,
-                      fontSize: 11,
+                      fontSize: 12,
                       letterSpacing: 2.5,
                       color: textMain,
                     ),
                   ),
 
-                  // Actions & LED
+                  // Actions & Active LED
                   Row(
                     children: [
                       IconButton(
                         padding: EdgeInsets.zero,
                         constraints: const BoxConstraints(),
-                        icon: Icon(isMuted ? Icons.volume_off : Icons.volume_up, size: 16, color: textMain),
+                        icon: Icon(isMuted ? Icons.volume_off : Icons.volume_up, size: 18, color: textMain),
                         onPressed: () {
                           soundService.playClick();
                           onToggleMute();
                         },
                       ),
-                      const SizedBox(width: 8),
+                      const SizedBox(width: 10),
                       IconButton(
                         padding: EdgeInsets.zero,
                         constraints: const BoxConstraints(),
-                        icon: Icon(isDark ? Icons.light_mode : Icons.dark_mode, size: 16, color: textMain),
+                        icon: Icon(isDark ? Icons.light_mode : Icons.dark_mode, size: 18, color: textMain),
                         onPressed: () {
                           soundService.playClick();
                           onToggleTheme();
                         },
                       ),
-                      const SizedBox(width: 8),
+                      const SizedBox(width: 10),
                       Container(
                         width: 8,
                         height: 8,
@@ -111,7 +99,7 @@ class DeviceFrame extends StatelessWidget {
               ),
               const SizedBox(height: 12),
 
-              // Main Body
+              // Main Body Content (Fills Screen Edge-to-Edge)
               Expanded(child: child),
             ],
           ),
