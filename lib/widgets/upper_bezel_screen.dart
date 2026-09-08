@@ -43,6 +43,25 @@ class UpperBezelScreen extends StatelessWidget {
     this.actionInput,
   });
 
+  // Helper to format numbers with thousands separators (e.g. 200,000.98)
+  String formatAmountWithCommas(String input) {
+    if (input.isEmpty) return '0';
+    List<String> parts = input.split('.');
+    String integerPart = parts[0];
+    String decimalPart = parts.length > 1 ? '.${parts[1]}' : '';
+
+    final RegExp reg = RegExp(r'(\d+)(\d{3})');
+    while (reg.hasMatch(integerPart)) {
+      integerPart = integerPart.replaceAllMapped(reg, (Match m) => '${m[1]},${m[2]}');
+    }
+    return '$integerPart$decimalPart';
+  }
+
+  String formatDoubleWithCommas(double val) {
+    String str = val.toStringAsFixed(2);
+    return formatAmountWithCommas(str);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -99,10 +118,10 @@ class UpperBezelScreen extends StatelessWidget {
 
           const SizedBox(height: 6),
 
-          // 2. Active Formula Expression (Horizontal Side-Scrollable!)
+          // 2. Active Formula Expression (Horizontal Side-Scrollable)
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
-            reverse: true, // Auto-scrolls to the end as you type continuous figures
+            reverse: true,
             child: Text(
               calcExpression.isEmpty ? ' ' : calcExpression,
               style: GoogleFonts.vt323(
@@ -120,7 +139,7 @@ class UpperBezelScreen extends StatelessWidget {
             alignment: Alignment.centerRight,
             fit: BoxFit.scaleDown,
             child: Text(
-              calcDisplay.isEmpty ? '0' : calcDisplay,
+              calcDisplay.isEmpty ? '0' : formatAmountWithCommas(calcDisplay),
               style: GoogleFonts.vt323(
                 fontSize: 48,
                 fontWeight: FontWeight.bold,
@@ -144,7 +163,7 @@ class UpperBezelScreen extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          // From Card
+          // Source Currency Card (With Thousands Separators: e.g. 200,000.98)
           InkWell(
             onTap: () {
               showDialog(
@@ -179,9 +198,12 @@ class UpperBezelScreen extends StatelessWidget {
                       ),
                     ],
                   ),
-                  Text(
-                    '${fromItem.symbol} ${currencyAmount.isEmpty ? '0' : currencyAmount}',
-                    style: GoogleFonts.vt323(fontSize: 22, fontWeight: FontWeight.bold),
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      '${fromItem.symbol} ${formatAmountWithCommas(currencyAmount)}',
+                      style: GoogleFonts.vt323(fontSize: 22, fontWeight: FontWeight.bold),
+                    ),
                   ),
                 ],
               ),
@@ -203,7 +225,7 @@ class UpperBezelScreen extends StatelessWidget {
             ],
           ),
 
-          // To Card
+          // Target Currency Card (With Thousands Separators: e.g. 765,058.00)
           InkWell(
             onTap: () {
               showDialog(
@@ -238,9 +260,12 @@ class UpperBezelScreen extends StatelessWidget {
                       ),
                     ],
                   ),
-                  Text(
-                    '${toItem.symbol} ${conv['converted']!.toStringAsFixed(2)}',
-                    style: GoogleFonts.vt323(fontSize: 22, fontWeight: FontWeight.bold),
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      '${toItem.symbol} ${formatDoubleWithCommas(conv['converted']!)}',
+                      style: GoogleFonts.vt323(fontSize: 22, fontWeight: FontWeight.bold),
+                    ),
                   ),
                 ],
               ),
@@ -252,7 +277,7 @@ class UpperBezelScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'SPREAD: 0.5% | S: ${conv['sellRate']!.toStringAsFixed(2)}',
+                'SPREAD: 0.5% | S: ${formatDoubleWithCommas(conv['sellRate']!)}',
                 style: GoogleFonts.vt323(fontSize: 11, color: const Color(0xFF4A5B4C)),
               ),
               Text(
