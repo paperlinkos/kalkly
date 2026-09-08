@@ -10,6 +10,7 @@ import 'currency_modal.dart';
 class UpperBezelScreen extends StatelessWidget {
   final String mode; // CALC, CURRENCY, ARCADE
   final String calcDisplay;
+  final String calcExpression;
   final List<String> calcHistory;
 
   final String fromCurrency;
@@ -28,6 +29,7 @@ class UpperBezelScreen extends StatelessWidget {
     super.key,
     required this.mode,
     required this.calcDisplay,
+    required this.calcExpression,
     required this.calcHistory,
     required this.fromCurrency,
     required this.toCurrency,
@@ -81,6 +83,7 @@ class UpperBezelScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
+          // 1. Scrollable History Log
           Expanded(
             child: ListView(
               reverse: true,
@@ -88,11 +91,31 @@ class UpperBezelScreen extends StatelessWidget {
                 return Text(
                   item,
                   textAlign: TextAlign.right,
-                  style: GoogleFonts.vt323(fontSize: 18, color: const Color(0xFF4A5B4C)),
+                  style: GoogleFonts.vt323(fontSize: 16, color: const Color(0xFF4A5B4C)),
                 );
               }).toList(),
             ),
           ),
+
+          const SizedBox(height: 6),
+
+          // 2. Active Formula Expression (Horizontal Side-Scrollable!)
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            reverse: true, // Auto-scrolls to the end as you type continuous figures
+            child: Text(
+              calcExpression.isEmpty ? ' ' : calcExpression,
+              style: GoogleFonts.vt323(
+                fontSize: 26,
+                color: const Color(0xFF4A5B4C),
+                letterSpacing: 1,
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 4),
+
+          // 3. Live Dynamic Running Total (Oversized LCD Readout)
           FittedBox(
             alignment: Alignment.centerRight,
             fit: BoxFit.scaleDown,

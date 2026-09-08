@@ -23,11 +23,9 @@ class _DynamoAppState extends State<DynamoApp> {
   // App mode
   String mode = 'CALC'; // CALC, CURRENCY, ARCADE
 
-  // Calc State
-  String calcDisplay = '0';
-  double? calcPrev;
-  String? calcOp;
-  bool calcNewInput = true;
+  // Calc State: Continuous side-scrolling expression & live running total
+  String calcExpression = '';
+  String calcRunningTotal = '0';
   List<String> calcHistory = [];
 
   // Currency State
@@ -54,73 +52,146 @@ class _DynamoAppState extends State<DynamoApp> {
     });
   }
 
+  // Evaluates mathematical expression in real-time
+  double? evaluateExpression(String rawExp) {
+    if (rawExp.trim().isEmpty) return null;
+    String exp = rawExp.replaceAll('×', '*').replaceAll('÷', '/').replaceAll(' ', '');
+
+    try {
+      final RegExp reg = RegExp(r'(\d+\.?\d*|[\+\-\*\/])');
+      final matches = reg.allMatches(exp).map((m) => m.group(0)!).toList();
+      if (matches.isEmpty) return null;
+
+      List<dynamic> tokens = [];
+      for (var m in matches) {
+        double? d = double.tryParse(m);
+        if (d != null) {
+          tokens.add(d);
+        } else {
+          tokens.add(m);
+        }
+      }
+
+      // First pass: * and /
+      List<dynamic> pass1 = [];
+      int j = 0;
+      while (j < tokens.length) {
+        var tok = tokens[j];
+        if (tok == '*' || tok == '/') {
+          if (pass1.isNotEmpty && j + 1 < tokens.length && tokens[j + 1] is double) {
+            double left = pass1.removeLast() as double;
+            double right = tokens[j + 1] as double;
+            double res = tok == '*' ? left * right : (right != 0 ? left / right : 0);
+            pass1.add(res);
+            j += 2;
+            continue;
+          }
+        }
+        pass1.add(tok);
+        j++;
+      }
+
+      if (pass1.isEmpty) return null;
+
+      // Second pass: + and -
+      double result = pass1[0] is double ? pass1[0] as double : 0;
+      int k = 1;
+      while (k < pass1.length) {
+        var op = pass1[k];
+        if (k + 1 < pass1.length && pass1[k + 1] is double) {
+          double val = pass1[k + 1] as double;
+          if (op == '+') result += val;
+          if (op == '-') result -= val;
+        }
+        k += 2;
+      }
+
+      return double.parse(result.toStringAsFixed(8));
+    } catch (_) {
+      return null;
+    }
+  }
+
+  void updateRunningTotal(String exp) {
+    double? res = evaluateExpression(exp);
+    if (res != null) {
+      // Format cleanly (remove trailing .0 if integer)
+      String str = res.toString();
+      if (str.endsWith('.0')) {
+        str = str.substring(0, str.length - 2);
+      }
+      calcRunningTotal = str;
+    }
+  }
+
   void handleCalcKey(String key) {
     setState(() {
       if (RegExp(r'^[0-9]$').hasMatch(key)) {
-        if (calcNewInput || calcDisplay == '0') {
-          calcDisplay = key;
-          calcNewInput = false;
-        } else if (calcDisplay.length < 14) {
-          calcDisplay += key;
-        }
+        calcExpression += key;
+        updateRunningTotal(calcExpression);
       } else if (key == '.') {
-        if (calcNewInput) {
-          calcDisplay = '0.';
-          calcNewInput = false;
-        } else if (!calcDisplay.contains('.')) {
-          calcDisplay += '.';
+        if (calcExpression.isEmpty || ['+', '-', '×', '÷'].contains(calcExpression.characters.last)) {
+          calcExpression += '0.';
+        } else if (!calcExpression.split(RegExp(r'[\+\-\×\÷]')).last.contains('.')) {
+          calcExpression += '.';
         }
+        updateRunningTotal(calcExpression);
       } else if (key == 'C') {
-        calcDisplay = '0';
-        calcPrev = null;
-        calcOp = null;
-        calcNewInput = true;
+        calcExpression = '';
+        calcRunningTotal = '0';
         soundService.playClear();
       } else if (key == 'DEL') {
-        if (!calcNewInput && calcDisplay.length > 1) {
-          calcDisplay = calcDisplay.substring(0, calcDisplay.length - 1);
-        } else {
-          calcDisplay = '0';
-          calcNewInput = true;
+        if (calcExpression.isNotEmpty) {
+          calcExpression = calcExpression.substring(0, calcExpression.length - 1);
+          updateRunningTotal(calcExpression);
+          if (calcExpression.isEmpty) {
+            calcRunningTotal = '0';
+          }
         }
       } else if (key == '+/-') {
-        double? num = double.tryParse(calcDisplay);
-        if (num != null) calcDisplay = (-num).toString();
-      } else if (key == '%') {
-        double? num = double.tryParse(calcDisplay);
-        if (num != null) calcDisplay = (num / 100.0).toString();
-      } else if (['+', '-', '×', '÷'].contains(key)) {
-        double? num = double.tryParse(calcDisplay);
-        if (calcPrev != null && calcOp != null && !calcNewInput) {
-          double res = compute(calcPrev!, num ?? 0, calcOp!);
-          calcPrev = res;
-          calcDisplay = res.toString();
-        } else {
-          calcPrev = num;
+        if (calcRunningTotal != '0') {
+          double? num = double.tryParse(calcRunningTotal);
+          if (num != null) {
+            double negated = -num;
+            calcExpression = negated.toString();
+            if (calcExpression.endsWith('.0')) {
+              calcExpression = calcExpression.substring(0, calcExpression.length - 2);
+            }
+            updateRunningTotal(calcExpression);
+          }
         }
-        calcOp = key;
-        calcNewInput = true;
+      } else if (key == '%') {
+        if (calcRunningTotal != '0') {
+          double? num = double.tryParse(calcRunningTotal);
+          if (num != null) {
+            double percent = num / 100.0;
+            calcExpression = percent.toString();
+            updateRunningTotal(calcExpression);
+          }
+        }
+      } else if (['+', '-', '×', '÷'].contains(key)) {
+        if (calcExpression.isEmpty) {
+          if (calcRunningTotal != '0') {
+            calcExpression = '$calcRunningTotal $key ';
+          }
+        } else {
+          String trimmed = calcExpression.trimRight();
+          if (['+', '-', '×', '÷'].contains(trimmed.characters.last)) {
+            // Replace trailing operator
+            calcExpression = '${trimmed.substring(0, trimmed.length - 1)} $key ';
+          } else {
+            calcExpression = '$calcExpression $key ';
+          }
+        }
       } else if (key == '=') {
-        if (calcPrev != null && calcOp != null) {
-          double num = double.tryParse(calcDisplay) ?? 0;
-          double res = compute(calcPrev!, num, calcOp!);
-          calcHistory.add('$calcPrev $calcOp $num = $res');
-          calcDisplay = res.toString();
-          calcPrev = null;
-          calcOp = null;
-          calcNewInput = true;
+        if (calcExpression.isNotEmpty && calcRunningTotal != '0') {
+          String finalEntry = '$calcExpression = $calcRunningTotal';
+          calcHistory.add(finalEntry);
+          calcExpression = calcRunningTotal;
           soundService.playScoreWin();
         }
       }
     });
-  }
-
-  double compute(double a, double b, String op) {
-    if (op == '+') return a + b;
-    if (op == '-') return a - b;
-    if (op == '×') return a * b;
-    if (op == '÷') return b != 0 ? a / b : 0;
-    return 0;
   }
 
   void handleCurrencyKey(String key) {
@@ -188,7 +259,8 @@ class _DynamoAppState extends State<DynamoApp> {
           children: [
             UpperBezelScreen(
               mode: mode,
-              calcDisplay: calcDisplay,
+              calcDisplay: calcRunningTotal,
+              calcExpression: calcExpression,
               calcHistory: calcHistory,
               fromCurrency: fromCurrency,
               toCurrency: toCurrency,
