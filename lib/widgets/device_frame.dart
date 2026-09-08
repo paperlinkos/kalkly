@@ -5,6 +5,7 @@ class DeviceFrame extends StatelessWidget {
   final Widget child;
   final bool isDark;
   final bool isMuted;
+  final String mode;
   final VoidCallback onToggleTheme;
   final VoidCallback onToggleMute;
 
@@ -13,6 +14,7 @@ class DeviceFrame extends StatelessWidget {
     required this.child,
     required this.isDark,
     required this.isMuted,
+    this.mode = 'CALC',
     required this.onToggleTheme,
     required this.onToggleMute,
   });
@@ -34,34 +36,49 @@ class DeviceFrame extends StatelessWidget {
               // Top Bezel Header
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  // Speaker Grille
-                  Row(
-                    children: List.generate(6, (i) {
-                      return Container(
-                        width: 4,
-                        height: 4,
-                        margin: const EdgeInsets.only(right: 4),
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: textMain.withOpacity(0.6),
+                  // Left Side Header Branding
+                  if (mode == 'ARCADE')
+                    Text(
+                      'Kalkly',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w900,
+                        fontSize: 18,
+                        letterSpacing: 1.5,
+                        color: textMain,
+                      ),
+                    )
+                  else
+                    Row(
+                      children: [
+                        Row(
+                          children: List.generate(6, (i) {
+                            return Container(
+                              width: 4,
+                              height: 4,
+                              margin: const EdgeInsets.only(right: 4),
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: textMain.withOpacity(0.6),
+                              ),
+                            );
+                          }),
                         ),
-                      );
-                    }),
-                  ),
-
-                  // Brand Stamp
-                  Text(
-                    'DYNAMO SYSTEM',
-                    style: TextStyle(
-                      fontWeight: FontWeight.w900,
-                      fontSize: 12,
-                      letterSpacing: 2.5,
-                      color: textMain,
+                        const SizedBox(width: 8),
+                        Text(
+                          'DYNAMO SYSTEM',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w900,
+                            fontSize: 12,
+                            letterSpacing: 2.5,
+                            color: textMain,
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
 
-                  // Actions & Active LED
+                  // Right Side Toggle Buttons & Active LED
                   Row(
                     children: [
                       IconButton(
@@ -73,7 +90,7 @@ class DeviceFrame extends StatelessWidget {
                           onToggleMute();
                         },
                       ),
-                      const SizedBox(width: 10),
+                      const SizedBox(width: 12),
                       IconButton(
                         padding: EdgeInsets.zero,
                         constraints: const BoxConstraints(),
@@ -83,7 +100,7 @@ class DeviceFrame extends StatelessWidget {
                           onToggleTheme();
                         },
                       ),
-                      const SizedBox(width: 10),
+                      const SizedBox(width: 12),
                       Container(
                         width: 8,
                         height: 8,
@@ -99,7 +116,7 @@ class DeviceFrame extends StatelessWidget {
               ),
               const SizedBox(height: 12),
 
-              // Main Body Content (Fills Screen Edge-to-Edge)
+              // Main Body Content
               Expanded(child: child),
             ],
           ),

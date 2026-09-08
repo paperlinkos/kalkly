@@ -248,6 +248,7 @@ class _DynamoAppState extends State<DynamoApp> {
       home: DeviceFrame(
         isDark: isDark,
         isMuted: isMuted,
+        mode: mode,
         onToggleTheme: () => setState(() => isDark = !isDark),
         onToggleMute: () {
           setState(() {
