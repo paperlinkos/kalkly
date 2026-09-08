@@ -39,44 +39,15 @@ class DeviceFrame extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   // Left Side Header Branding
-                  if (mode == 'ARCADE')
-                    Text(
-                      'Kalkly',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w900,
-                        fontSize: 18,
-                        letterSpacing: 1.5,
-                        color: textMain,
-                      ),
-                    )
-                  else
-                    Row(
-                      children: [
-                        Row(
-                          children: List.generate(6, (i) {
-                            return Container(
-                              width: 4,
-                              height: 4,
-                              margin: const EdgeInsets.only(right: 4),
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: textMain.withOpacity(0.6),
-                              ),
-                            );
-                          }),
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          'DYNAMO SYSTEM',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w900,
-                            fontSize: 12,
-                            letterSpacing: 2.5,
-                            color: textMain,
-                          ),
-                        ),
-                      ],
+                  Text(
+                    'Kalkly',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w900,
+                      fontSize: 18,
+                      letterSpacing: 1.5,
+                      color: textMain,
                     ),
+                  ),
 
                   // Right Side Toggle Buttons & Active LED
                   Row(
